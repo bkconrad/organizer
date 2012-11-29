@@ -1,0 +1,7 @@
+1. find a directory
+2. recursively find all files
+3. compile a list of all artist and album names
+4. create folder heirarchy
+5. sort each file into the appropriate folder
+6. rename each file consistently
+7. convert to desired format
