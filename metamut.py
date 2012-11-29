@@ -14,28 +14,17 @@ class AudioFile:
 		self.title = None
 		self.album = None
 		self.artist = None
-		self.track = None
+		self.tracknumber = None
 		self.valid = True
 
 		ext = filename.split('.')[-1:][0]
 		if ext == 'mp3':
 			m = MP3(filename, ID3=EasyID3)
-			try:
-				self.title = m["title"][0]
-			except:
-				pass
-			try:
-				self.album = m["album"][0]
-			except:
-				pass
-			try:
-				self.artist = m["artist"][0]
-			except:
-				pass
-			try:
-				self.track = m["track"][0]
-			except:
-				pass
+			for k in ["title", "artist", "album", "tracknumber"]:
+				try:
+					setattr(self, k, m[k][0].strip())
+				except KeyError:
+					pass
 		else:
 			log("Unknown extension \"%s\" in file \n%s", ext, filename)
 			self.valid = False
