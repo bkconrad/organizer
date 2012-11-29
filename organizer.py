@@ -14,7 +14,10 @@ if __name__ == "__main__":
 	for dirname, dirnames, filenames in os.walk(options["directory"]):
 		for filename in filenames:
 			f = AudioFile(os.path.join(dirname, filename))
-			count += 1
 			if f.valid:
+				count += 1
 				f.pprint()
-	log("Found %d files", count)
+	if count > 0:
+		log("Found %d files", count)
+	else:
+		log("No files found")

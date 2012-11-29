@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 import os
 from mutagen.mp3 import MP3
+from mutagen.mp4 import MP4
 from mutagen.easyid3 import EasyID3
 from util import *
 # return the value of the first key in the given list which exists in arr
@@ -18,7 +19,20 @@ class AudioFile:
 		self.valid = True
 
 		ext = filename.split('.')[-1:][0]
-		if ext == 'mp3':
+		if ext == 'm4a' or ext == 'mp4':
+			MP4_map = {
+					"@nam" : "title",
+					"@ART" : "artist",
+					"@alb" : "album"
+					}
+
+			m = MP4(filename)
+			for k in MP4_map:
+				try:
+					setattr(self, MP4_map[k], m[k][0].strip())
+				except KeyError:
+					pass
+		elif ext == 'mp3':
 			m = MP3(filename, ID3=EasyID3)
 			for k in ["title", "artist", "album", "tracknumber"]:
 				try:
@@ -26,7 +40,7 @@ class AudioFile:
 				except KeyError:
 					pass
 		else:
-			log("Unknown extension \"%s\" in file \n%s", ext, filename)
+			# not recognized
 			self.valid = False
 
 		if self.title == None:
