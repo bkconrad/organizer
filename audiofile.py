@@ -49,5 +49,8 @@ class AudioFile:
 			# just the filename if all else fails
 			self.title = os.path.basename(filename).split(".")[-2:][0]
 
+	def __repr__(self):
+		return "%s - %s (%s)" % (self.title, self.artist, self.album)
+
 	def pprint(self):
 		print "%s by %s on %s" % (self.title, self.artist, self.album)
