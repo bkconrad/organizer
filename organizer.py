@@ -1,9 +1,58 @@
 #!/usr/bin/env python
+import re
+import string
 import os
 from audiofile import *
 from util import *
+
+class CleanerLeaf:
+	def __init__(self, dirty):
+		exclude = set(string.punctuation)
+		self.dirty = dirty
+		self.clean = ''.join(ch for ch in dirty.lower().strip() if ch not in exclude)
+		self.clean = re.sub(r'\s+', ' ', self.clean)
+	def __repr__(self):
+		return "%s (%s)" % (self.dirty, self.clean)
+
+def aggregate(file_dict, field = "artist"):
+	master_dict = {}
+
+	# find the clean name for each file
+	for k in file_dict:
+		# make a sub dict to use as the value
+		master_dict[k] = CleanerLeaf(getattr(file_dict[k], field))
+
+	# count the number of times each dirty name is used for each clean name
+	count_dict = {}
+	for k in master_dict:
+		dirty = master_dict[k].dirty
+		clean = master_dict[k].clean
+		if count_dict.has_key(clean):
+			if count_dict[clean].has_key(dirty):
+				count_dict[clean][dirty] += 1
+			else:
+				count_dict[clean][dirty] = 1
+		else:
+			count_dict[clean] = {}
+	
+	# for each clean name, find the most common dirty name
+	name_map = {}
+	for clean in count_dict:
+		best_count = 0
+		best_name = clean
+		for dirty in count_dict[clean]:
+			if count_dict[clean][dirty] > best_count:
+				best_count = count_dict[clean][dirty]
+				best_name = dirty
+		name_map[clean] = best_name
+
+	# update all files with the same clean name to have the same dirty name
+	for k in file_dict:
+		if getattr(file_dict[k], field) != name_map[master_dict[k].clean]:
+			print("'%s' -> '%s'" % (getattr(file_dict[k], field), name_map[master_dict[k].clean]))
+			setattr(file_dict[k], field, name_map[master_dict[k].clean])
+
 if __name__ == "__main__":
-	file_list = []
 	options = {
 			"directory": "."
 			}
@@ -19,9 +68,11 @@ if __name__ == "__main__":
 			if f.valid:
 				count += 1
 				file_dict[full_path] = f
-				f.pprint()
 	if count > 0:
 		log("Found %d files", count)
-		print file_dict
 	else:
 		log("No files found")
+
+	# aggregate artist and albums
+	aggregate(file_dict, "artist")
+	aggregate(file_dict, "album")
