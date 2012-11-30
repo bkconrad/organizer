@@ -20,12 +20,12 @@ class AudioFile:
 
 		ext = filename.split('.')[-1:][0]
 		if ext == 'm4a' or ext == 'mp4':
+			# some of the keys contain a copyright character (0xA9)
 			MP4_map = {
-					"@nam" : "title",
-					"@ART" : "artist",
-					"@alb" : "album"
+					"\xa9nam" : "title",
+					"\xa9ART" : "artist",
+					"\xa9alb" : "album"
 					}
-
 			m = MP4(filename)
 			for k in MP4_map:
 				try:
