@@ -1,0 +1,7 @@
+This is a library organization/tagging/renaming tool to be executed from the
+command line or as a chron job. It requires python 2 and python-mutagen. On Ubuntu
+you can run
+
+	sudo apt-get install python-mutagen
+
+and you'll be ready to go
