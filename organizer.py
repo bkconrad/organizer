@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 import os
-from metamut import *
+from audiofile import *
 from util import *
 if __name__ == "__main__":
 	file_list = []
