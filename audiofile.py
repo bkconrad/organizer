@@ -4,14 +4,18 @@ from mutagen.mp3 import MP3
 from mutagen.mp4 import MP4
 from mutagen.easyid3 import EasyID3
 from util import *
-# return the value of the first key in the given list which exists in arr
-def take_any(arr, *args):
-	for k in args:
-		if arr.has_key(k):
-			return arr[k]
-	
+
 class AudioFile:
+
 	def __init__(self, filename):
+
+		# some of the keys contain a copyright character (0xA9)
+		MP4_map = {
+			"\xa9nam" : "title",
+			"\xa9ART" : "artist",
+			"\xa9alb" : "album"
+		}
+
 		self.title = None
 		self.album = None
 		self.artist = None
@@ -20,13 +24,11 @@ class AudioFile:
 
 		ext = filename.split('.')[-1:][0]
 		if ext == 'm4a' or ext == 'mp4':
-			# some of the keys contain a copyright character (0xA9)
-			MP4_map = {
-					"\xa9nam" : "title",
-					"\xa9ART" : "artist",
-					"\xa9alb" : "album"
-					}
 			m = MP4(filename)
+			# for each key (atom name) set an attribute on self with a name
+			# that matches the atom's name's corresonding value in MP4_map and
+			# a value equal to the stripped contents of that atom
+			# (i.e. route atom contents to attributes on self)
 			for k in MP4_map:
 				try:
 					setattr(self, MP4_map[k], m[k][0].strip())
