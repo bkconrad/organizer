@@ -1,10 +1,13 @@
 #!/usr/bin/env python
+import pprint
 import re
 import string
 import os
 import argparse
 from audiofile import *
 from util import *
+
+pp = pprint.PrettyPrinter(indent=2)
 
 class CleanerLeaf:
 	def __init__(self, dirty):
@@ -85,3 +88,21 @@ if __name__ == "__main__":
 		aggregate(file_dict, "artist")
 	if 'album' in options.fuzzy:
 		aggregate(file_dict, "album")
+	
+	# create folder structure
+	if options.operation in ['move', 'copy']:
+		# first build a tree
+		# structure is { artist: { album: ["songfile", ...] } }
+		tree = {}
+		for fn in file_dict:
+			artist = file_dict[fn].artist
+			album = file_dict[fn].album
+			if artist in tree:
+				if album in tree[artist]:
+					tree[artist][album].append(fn)
+				else:
+					tree[artist][album] = []
+			else:
+				tree[artist] = {}
+
+		pp.pprint(tree)
