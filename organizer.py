@@ -2,6 +2,7 @@
 import re
 import string
 import os
+import argparse
 from audiofile import *
 from util import *
 
@@ -53,15 +54,20 @@ def aggregate(file_dict, field = "artist"):
 			setattr(file_dict[k], field, name_map[master_dict[k].clean])
 
 if __name__ == "__main__":
-	options = {
-			"directory": "."
-			}
+	parser = argparse.ArgumentParser(description = """
+	Audio file mass tagger, renamer, and organizer
+	""")
+	parser.add_argument("-m", "--move", dest="operation", action='store_const', const='move', default='none')
+	parser.add_argument("-c", "--copy", dest="operation", action='store_const', const='copy')
+	parser.add_argument("-f", "--fuzzy", choices=["artist", "album"], nargs='+', action='store', default=None) 
+	parser.add_argument("sourcedir", default=".")
+	options = parser.parse_args()
 
 	# find all files in directory
     # http://stackoverflow.com/questions/120656/directory-listing-in-python
 	count = 0
 	file_dict = {}
-	for dirname, dirnames, filenames in os.walk(options["directory"]):
+	for dirname, dirnames, filenames in os.walk(options.sourcedir):
 		for filename in filenames:
 			full_path = os.path.join(dirname, filename)
 			f = AudioFile(full_path)
@@ -74,5 +80,7 @@ if __name__ == "__main__":
 		log("No files found")
 
 	# aggregate artist and albums
-	aggregate(file_dict, "artist")
-	aggregate(file_dict, "album")
+	if options.fuzzy and options.fuzzy.count('artist'):
+		aggregate(file_dict, "artist")
+	if options.fuzzy and options.fuzzy.count('album'):
+		aggregate(file_dict, "album")
